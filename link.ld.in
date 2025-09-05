@@ -1,10 +1,10 @@
-/* Minimal RV32I linker script for single 10 KiB SRAM at 0x00000000 */
+/* Minimal RV32I linker script for single 10 KiB SRAM at configurable ORIGIN */
 OUTPUT_ARCH(riscv)
 ENTRY(_start)
 
 MEMORY
 {
-  SRAM (rxw) : ORIGIN = 0x00000000, LENGTH = 10K
+  SRAM (rxw) : ORIGIN = @CORE_SRAM_MEM@, LENGTH = @CORE_SRAM_SIZE@
 }
 
 _stack_top = ORIGIN(SRAM) + LENGTH(SRAM);
@@ -41,4 +41,3 @@ SECTIONS
 
   /DISCARD/ : { *(.comment) *(.note*) }
 }
-

@@ -9,6 +9,14 @@
 // Memory-mapped I/O helpers
 #define REG32(addr) (*(volatile uint32_t *)(uintptr_t)(addr))
 
+// Core SRAM base address used by the linker script (ORIGIN)
+// Update to match the NoX SoC memory map when needed.
+#define CORE_SRAM_MEM 0x00000000u
+
+// Core SRAM size (in bytes) used by the linker script (LENGTH)
+// Default is 10 KiB for bring-up; update as needed.
+#define CORE_SRAM_SIZE 0x00002800u
+
 // UART (simple TX/RX/STATUS/CTRL model)
 #define UART_BASE        0x10010000u
 #define UART_TXDATA      (UART_BASE + 0x00)
@@ -48,4 +56,3 @@ static inline void busy_delay(volatile uint32_t loops) {
 }
 
 #endif // SOC_MMAP_H
-

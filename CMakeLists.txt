@@ -12,7 +12,25 @@ set(RV_OBJD riscv64-unknown-elf-objdump)
 set(RV_OBJC riscv64-unknown-elf-objcopy)
 
 set(COMMON_CFLAGS -Os -g3 -gdwarf-4 -ffunction-sections -fdata-sections -nostdlib -nostartfiles -march=rv32i -mabi=ilp32)
-set(LD_FLAGS -Wl,--gc-sections -T link.ld)
+
+# Generate linker script from include/soc_mmap.h (CORE_SRAM_MEM, CORE_SRAM_SIZE)
+set(SOC_MMAP_HDR ${CMAKE_SOURCE_DIR}/include/soc_mmap.h)
+file(READ ${SOC_MMAP_HDR} SOC_MMAP_CONTENT)
+string(REGEX MATCH "#define[ \t]+CORE_SRAM_MEM[ \t]+(0x[0-9A-Fa-f]+|[0-9]+)[uUlL]*" CORE_SRAM_MATCH "${SOC_MMAP_CONTENT}")
+if(NOT CORE_SRAM_MATCH)
+  message(FATAL_ERROR "CORE_SRAM_MEM not found in include/soc_mmap.h")
+endif()
+string(REGEX REPLACE ".*#define[ \t]+CORE_SRAM_MEM[ \t]+(0x[0-9A-Fa-f]+|[0-9]+).*" "\\1" CORE_SRAM_MEM_VALUE "${CORE_SRAM_MATCH}")
+set(CORE_SRAM_MEM ${CORE_SRAM_MEM_VALUE})
+
+string(REGEX MATCH "#define[ \t]+CORE_SRAM_SIZE[ \t]+(0x[0-9A-Fa-f]+|[0-9]+)[uUlL]*" CORE_SRAM_SIZE_MATCH "${SOC_MMAP_CONTENT}")
+if(NOT CORE_SRAM_SIZE_MATCH)
+  message(FATAL_ERROR "CORE_SRAM_SIZE not found in include/soc_mmap.h")
+endif()
+string(REGEX REPLACE ".*#define[ \t]+CORE_SRAM_SIZE[ \t]+(0x[0-9A-Fa-f]+|[0-9]+).*" "\\1" CORE_SRAM_SIZE_VALUE "${CORE_SRAM_SIZE_MATCH}")
+set(CORE_SRAM_SIZE ${CORE_SRAM_SIZE_VALUE})
+
+configure_file(${CMAKE_SOURCE_DIR}/link.ld.in ${CMAKE_BINARY_DIR}/link.ld @ONLY)
 
 set(TESTS uart_test timer_test watchdog_test)
 
@@ -26,7 +44,7 @@ foreach(t ${TESTS})
   # Absolute paths within current container filesystem
   set(SRC   ${CMAKE_SOURCE_DIR}/c_tests/${t}.c)
   set(INC   ${CMAKE_SOURCE_DIR}/include)
-  set(LDS   ${CMAKE_SOURCE_DIR}/link.ld)
+  set(LDS   ${CMAKE_BINARY_DIR}/link.ld)
 
   add_custom_command(
     OUTPUT ${ELF}

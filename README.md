@@ -5,7 +5,7 @@ This repository contains minimal, self-contained C programs to exercise NoX SoC 
 ## Project Layout
 - `c_tests/`: Single-file tests (`uart_test.c`, `timer_test.c`, `watchdog_test.c`) with their own startup (`_start`).
 - `include/`: Common headers (`soc_mmap.h`, `uvm_test.h`).
-- `link.ld`: Simple RV32I linker script targeting a single 10 KiB SRAM.
+- `link.ld.in`: Linker script template; CMake generates `build/link.ld` using values from `include/soc_mmap.h`.
 - `out/`: Build artifacts (created by CMake).
 
 ## Requirements
@@ -36,5 +36,5 @@ Each test, when it completes, writes `P` (pass) or `F` (fail) to a well-known me
 
 ## Notes
 - Addresses in `include/soc_mmap.h` are placeholders; align them with the actual NoX SoC memory map.
-- The linker script assumes SRAM at `0x00000000` with size 10 KiB. Adjust if your SoC differs.
+- Linker script generation: CMake reads `CORE_SRAM_MEM` and `CORE_SRAM_SIZE` from `include/soc_mmap.h` and substitutes them into `link.ld.in` to produce `build/link.ld`. Update those defines to change the SRAM origin and length.
  - The `.hex` format is raw words with no addresses/checksums. Each line is one 32-bit word, big-endian text of the little-endian memory content (e.g., bytes `13 05 00 00` -> line `00000513`).
