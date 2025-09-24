@@ -17,6 +17,7 @@ This repository contains minimal, self-contained C programs to exercise NoX SoC 
 Configure you shortcut for RISC-V docker containers
 ```bash
 alias riscv='docker run -it --rm -v ./:/test/ -w /test/ aignacio/riscv bash'
+docker run -it --rm -v ./:/test/ -w /test/ aignacio/nox:latest bash
 ```
 
 Build the sources
