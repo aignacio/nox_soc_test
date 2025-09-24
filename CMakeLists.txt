@@ -7,9 +7,9 @@ file(MAKE_DIRECTORY ${ARTIFACT_DIR})
 
 # Building directly inside the container; no docker wrapper
 
-set(RV_CC   riscv64-unknown-elf-gcc)
-set(RV_OBJD riscv64-unknown-elf-objdump)
-set(RV_OBJC riscv64-unknown-elf-objcopy)
+set(RV_CC   riscv-none-embed-gcc)
+set(RV_OBJD riscv-none-embed-objdump)
+set(RV_OBJC riscv-none-embed-objcopy)
 
 set(COMMON_CFLAGS -Os -g3 -gdwarf-4 -ffunction-sections -fdata-sections -nostdlib -nostartfiles -march=rv32i -mabi=ilp32)
 
@@ -32,7 +32,7 @@ set(CORE_SRAM_SIZE ${CORE_SRAM_SIZE_VALUE})
 
 configure_file(${CMAKE_SOURCE_DIR}/link.ld.in ${CMAKE_BINARY_DIR}/link.ld @ONLY)
 
-set(TESTS uart_test timer_test watchdog_test)
+set(TESTS uart_test timer_test watchdog_test base_test gpio_test)
 
 foreach(t ${TESTS})
   set(ELF ${ARTIFACT_DIR}/${t}.elf)
@@ -81,7 +81,7 @@ foreach(t ${TESTS})
   # Optional DWARF line table dump aids debugging inline C issues
   add_custom_command(
     OUTPUT ${ARTIFACT_DIR}/${t}.dwarf.txt
-    COMMAND /bin/sh -lc "riscv64-unknown-elf-readelf --debug-dump=decodedline ${ELF} > ${ARTIFACT_DIR}/${t}.dwarf.txt || true"
+    COMMAND /bin/sh -lc "riscv-none-embed-readelf --debug-dump=decodedline ${ELF} > ${ARTIFACT_DIR}/${t}.dwarf.txt || true"
     DEPENDS ${ELF}
     VERBATIM
     COMMENT "Dumping DWARF line table for ${t}.elf"
